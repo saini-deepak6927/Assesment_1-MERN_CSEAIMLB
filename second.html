@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Exchange Tool</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: purple;
+        }
+        
+        button:hover {
+            background-color: #155a8a;
+        }
+    </style>
+</head>
+<body>
+    <div class="exchange-container">
+        <h1>Currency Exchange Tool</h1>
+        <div class="input-group">
+            <label for="input-amount">Amount:</label>
+            <input type="text" id="input-amount" value="1">
+            <select id="source-currency">
+                <option value="USD" selected>USD - United States Dollar</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="output-amount">Convert To:</label>
+            <input type="text" id="output-amount" readonly placeholder="Result">
+            <select id="target-currency"></select>
+        </div>
+        <button onclick="exchange()">Convert</button>
+    </div>
+
+    <script>
+        const exchangeRateAPI = 'https://api.exchangerate-api.com/v4/latest/USD';
+        let ratesData = {};
+
+        async function loadRates() {
+            try {
+                const result = await fetch(exchangeRateAPI);
+                const data = await result.json();
+                ratesData = data.rates;
+                const targetCurrencySelect = document.getElementById('target-currency');
+
+                for (const code in ratesData) {
+                    const option = document.createElement('option');
+                    option.value = code;
+                    option.textContent = `${code} - ${code}`;
+                    targetCurrencySelect.appendChild(option);
+                }
+            } catch (err) {
+                console.error('Error loading rates:', err);
+            }
+        }
+
+        function exchange() {
+            const amount = parseFloat(document.getElementById('input-amount').value);
+            const toCurrency = document.getElementById('target-currency').value;
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid amount.");
+                return;
+            }
+
+            const resultAmount = amount * ratesData[toCurrency];
+            document.getElementById('output-amount').value = resultAmount.toFixed(2);
+        }
+
+        window.onload = loadRates;
+    </script>
+</body>
+</html>
